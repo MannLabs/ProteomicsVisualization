@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from numba import njit
 from tqdm import tqdm
-from pyrawfilereader import RawFileReader
 
 # specify a configuration whether to display the Plotly logo in the toolbar and how to save the plot
 config = {
@@ -27,7 +26,8 @@ def load_thermo_raw(
     """
     Load a Thermo raw file and extract all spectra
     """
-
+    from pyrawfilereader import RawFileReader
+    
     rawfile = RawFileReader(raw_file)
 
     spec_indices = np.array(
@@ -159,3 +159,115 @@ def check_sanity(
         mass_list[0][i] <= mass_list[0][i + 1] for i in range(len(mass_list[0]) - 1)
     ):
         raise ValueError("Masses are not sorted.")
+        
+        
+from numba import types
+from numba.typed import Dict
+
+# This code was taken from the AlphaPept Python package (https://github.com/MannLabs/alphapept/blob/master/nbs/03_fasta.ipynb)
+#generates the mass dictionary from table
+def get_mass_dict(modfile:str="../Data/modifications.tsv", aasfile: str="../Data/amino_acids.tsv", verbose:bool=True):
+    """
+    Function to create a mass dict based on tsv files.
+    This is used to create the hardcoded dict in the constants notebook.
+    The dict needs to be hardcoded because of importing restrictions when using numba.
+    More specifically, a global needs to be typed at runtime.
+    Args:
+        modfile (str): Filename of modifications file.
+        aasfile (str): Filename of AAs file.
+        verbose (bool, optional): Flag to print dict.
+    Returns:
+        Returns a numba compatible dictionary with masses.
+    Raises:
+        FileNotFoundError: If files are not found.
+    """
+    import pandas as pd
+
+    mods = pd.read_csv(modfile, delimiter="\t")
+    aas = pd.read_csv(aasfile, delimiter="\t")
+
+    mass_dict = Dict.empty(key_type=types.unicode_type, value_type=types.float64)
+
+    for identifier, mass in aas[["Identifier", "Monoisotopic Mass (Da)"]].values:
+        mass_dict[identifier] = float(mass)
+
+    for identifier, aar, mass in mods[
+        ["Identifier", "Amino Acid Residue", "Monoisotopic Mass Shift (Da)"]
+    ].values:
+        #print(identifier, aar, mass)
+
+        if ("<" in identifier) or (">" in identifier):
+            for aa_identifier, aa_mass in aas[["Identifier", "Monoisotopic Mass (Da)"]].values:
+                if '^' in identifier:
+                    new_identifier = identifier[:-2] + aa_identifier
+                    mass_dict[new_identifier] = float(mass) + mass_dict[aa_identifier]
+                elif aar == aa_identifier:
+                    new_identifier = identifier[:-2] + aa_identifier
+                    mass_dict[new_identifier] = float(mass) + mass_dict[aa_identifier]
+                else:
+                    pass
+        else:
+            mass_dict[identifier] = float(mass) + mass_dict[aar]
+
+    # Manually add other masses
+    mass_dict[
+        "Electron"
+    ] = (
+        0.000548579909070
+    )  # electron mass, half a millimass error if not taken into account
+    mass_dict["Proton"] = 1.00727646687  # proton mass
+    mass_dict["Hydrogen"] = 1.00782503223  # hydrogen mass
+    mass_dict["C13"] = 13.003354835  # C13 mass
+    mass_dict["Oxygen"] = 15.994914619  # oxygen mass
+    mass_dict["OH"] = mass_dict["Oxygen"] + mass_dict["Hydrogen"]  # OH mass
+    mass_dict["H2O"] = mass_dict["Oxygen"] + 2 * mass_dict["Hydrogen"]  # H2O mass
+
+    mass_dict["NH3"] = 17.03052
+    mass_dict["delta_M"] = 1.00286864
+    mass_dict["delta_S"] = 0.0109135
+
+    if verbose:
+
+        for element in mass_dict:
+            print('mass_dict["{}"] = {}'.format(element, mass_dict[element]))
+
+    return mass_dict
+
+import numba
+
+@njit
+def get_fragmass(parsed_pep:list, mass_dict:numba.typed.Dict)->tuple:
+    """
+    Calculate the masses of the fragment ions
+    Args:
+        parsed_pep (numba.typed.List of str): the list of amino acids and modified amono acids.
+        mass_dict (numba.typed.Dict): key is the amino acid or the modified amino acid, and the value is the mass.
+    Returns:
+        Tuple[np.ndarray(np.float64), np.ndarray(np.int8)]: the fragment masses and the fragment types (represented as np.int8).
+        For a fragment type, positive value means the b-ion, the value indicates the position (b1, b2, b3...); the negative value means
+        the y-ion, the absolute value indicates the position (y1, y2, ...).
+    """
+    n_frags = (len(parsed_pep) - 1) * 2
+
+    frag_masses = np.zeros(n_frags, dtype=np.float64)
+    frag_type = np.zeros(n_frags, dtype=np.int8)
+
+    # b-ions > 0
+    n_frag = 0
+
+    frag_m = mass_dict["Proton"]
+    for idx, _ in enumerate(parsed_pep[:-1]):
+        frag_m += mass_dict[_]
+        frag_masses[n_frag] = frag_m
+        frag_type[n_frag] = (idx+1)
+        n_frag += 1
+
+    # y-ions < 0
+    frag_m = mass_dict["Proton"] + mass_dict["H2O"]
+    for idx, _ in enumerate(parsed_pep[::-1][:-1]):
+        frag_m += mass_dict[_]
+        frag_masses[n_frag] = frag_m
+        frag_type[n_frag] = -(idx+1)
+        n_frag += 1
+
+    return frag_masses, frag_type
