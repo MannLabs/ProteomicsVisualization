@@ -10,8 +10,8 @@ config = {
     'toImageButtonOptions': {
         'format': 'svg', # one of png, svg, jpeg, webp
         'filename': 'custom_image',
-        'height': 400,
-        'width': 700,
+        'height': 500,
+        'width': 1200,
         'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
       }
 }
