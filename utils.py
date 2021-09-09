@@ -166,7 +166,7 @@ from numba.typed import Dict
 
 # This code was taken from the AlphaPept Python package (https://github.com/MannLabs/alphapept/blob/master/nbs/03_fasta.ipynb)
 #generates the mass dictionary from table
-def get_mass_dict(modfile:str="../Data/modifications.tsv", aasfile: str="../Data/amino_acids.tsv", verbose:bool=True):
+def get_mass_dict(modfile:str="Data/modifications.tsv", aasfile: str="Data/amino_acids.tsv", verbose:bool=True):
     """
     Function to create a mass dict based on tsv files.
     This is used to create the hardcoded dict in the constants notebook.
