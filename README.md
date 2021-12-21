@@ -38,6 +38,8 @@ This notebook incorporates functions for pre-processing and visualisation of raw
 - 2D MS1 map showing the intensity of the observed precursor masses across the whole retention time;
 - 2D MS1 ion mobility heatmap of precursor intensities demonstrating a correlation of m/z and ion mobility.
 
+Data: 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_chrom, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms1_part1, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms1_part2
+
 ##### 2) Figure 2 - visualizations at the fragment level.  
 
 This notebook provides functions for pre-processing and visualisation of the raw MS data at the fragment level. The following graphs are presented in this notebook:
@@ -46,12 +48,17 @@ This notebook provides functions for pre-processing and visualisation of the raw
 - overlaid extracted ion chromatograms in the elution time window of precursor and fragments;
 - heatmaps of ion intensities in ion-mobility and retention time dimensions.
 
+Data: 20170123_Qep6_ChRo_SA_collab_SYN_CT_phospho_1_ms2_data, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms2_data, 
+20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_msms.txt, 20200428_Evosep_60SPD_SG06-16_MLHeLa_200ng_py8_S3-A6_1_2452_frame, 20200428_Evosep_60SPD_SG06-16_MLHeLa_200ng_py8_S3-A6_1_2452_ms2_data
+
 ##### 3) Figure 3 - peptide visualization.
 
 Here we demonstrate plots that may be useful for visualisation of peptides and PTMs. The notebook contains the code for plotting:
 - peptide coverage plot (PeptideAtlas style);
 - a complex plot displaying differential peptide coverage between samples with overlapping peptides collapsed into a single trace, PTMs and external features (generated using [AlphaMap](https://github.com/MannLabs/alphamap));
 - lollipop plot displaying the intensity and localization probability of phosphosites (PhosphoSitePlus style).
+
+Data: forebrain_Phospho (STY)Sites.txt, yeast_evidence.txt, yeast_peptides.csv
 
 ##### 4) Figure 4 - simple protein quantification.
 
@@ -64,6 +71,8 @@ This notebook includes the following graphs to illustrate dataset properties and
 - volcano plots with different cutoff options;
 - visualization of enrichment analysis.
 
+Data: yeast_proteinGroups.txt
+
 ##### 5) Figure 5 - multidimensional protein quantification.
 
 This notebook covers the visualization of multidimensional experimental designs and includes the following plots:
@@ -75,6 +84,8 @@ This notebook covers the visualization of multidimensional experimental designs 
 - profile plot;
 - parallel coordinates plot;
 - radar plot.
+
+Data: ap4_proteinGroups.txt
 
 In addition to the above-mentioned Jupyter notebooks, the GitHub repository includes **(1)** data and annotations folders (Data & annotations) with the data files required for visualization and described in each notebook where they have been used, **(2)** a folder containing all supplementary files (ext) to read or visualize the data.
 
@@ -135,8 +146,9 @@ and run it in the notebook. This will install the libraries used in the current 
 ---
 ## Citations
 
-Reference:
-- will be updated soon.
+- Schmidt, R. M., Schessner, J. P., Borner, G. H., & Schuck, S. (2019). The proteasome biogenesis regulator Rpn4 cooperates with the unfolded protein  response to promote ER stress resistance. ELife, 8.
+- Brüning, F., Noya, S. B., Bange, T., Koutsouli, S., Rudolph, J. D., Tyagarajan, S. K., Cox, J., Mann, M., Brown, S. A., & Robles, M. S. (2019). Sleep-wake cycles drive daily dynamics of synaptic phosphorylation. Science (New York, N.Y.), 366.
+- Davies, A. K., Itzhak, D. N., Edgar, J. R., Archuleta, T. L., Hirst, J., Jackson, L. P., Robinson, M. S., & Borner, G. H. H. (2018). AP-4 vesicles contribute to spatial control of autophagy via RUSC-dependent  peripheral delivery of ATG9A. Nature Communications, 9, 3958.
 
 ---
 ## How to contribute
