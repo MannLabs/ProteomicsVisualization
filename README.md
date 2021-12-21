@@ -148,7 +148,7 @@ and run it in the notebook. This will install the libraries used in the current 
 - Schmidt, R. M., Schessner, J. P., Borner, G. H., & Schuck, S. (2019). The proteasome biogenesis regulator Rpn4 cooperates with the unfolded protein  response to promote ER stress resistance. ELife, 8.
 - Brüning, F., Noya, S. B., Bange, T., Koutsouli, S., Rudolph, J. D., Tyagarajan, S. K., Cox, J., Mann, M., Brown, S. A., & Robles, M. S. (2019). Sleep-wake cycles drive daily dynamics of synaptic phosphorylation. Science (New York, N.Y.), 366.
 - Davies, A. K., Itzhak, D. N., Edgar, J. R., Archuleta, T. L., Hirst, J., Jackson, L. P., Robinson, M. S., & Borner, G. H. H. (2018). AP-4 vesicles contribute to spatial control of autophagy via RUSC-dependent  peripheral delivery of ATG9A. Nature Communications, 9, 3958.
-- Meier, F., Brunner, A.-D., Frank, M., Ha, A., et al., diaPASEF: parallel accumulation-serial fragmentation combined with data-independent  acquisition. Nature methods 2020, 17, 1229–1236.
+- Meier, F., Brunner, A.-D., Frank, M., Ha, A., Bludau, I., Voytik, E., Kaspar-Schoenefeld, S., Lubeck, M., Raether, O., Bache, N., Aebersold, R., Collins, B. C., Röst, H. L., & Mann, M. (2020). diaPASEF: parallel accumulation-serial fragmentation combined with data-independent  acquisition. Nature Methods, 17, 1229–1236.
 
 ---
 ## How to contribute
