@@ -1,4 +1,4 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JuliaS92/ProteomicsVisualization/HEAD?urlpath=tree)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MannLabs/ProteomicsVisualization/HEAD?urlpath=tree)
 
 # Bottom-up proteomics data visualisation
 
@@ -90,7 +90,7 @@ There are two different ways to use this repository depending on programming exp
 
 We suggest using Binder for users with no programming experience. Binder allows you to execute code online without installing any software or downloading data locally. It also gives the possibility to interact with the published code, modify it, access pre-loaded data and build interactive plots online.
 
-To run Binder use the `launch binder` logo at the top of the README.md file or click [here](https://mybinder.org/v2/gh/JuliaS92/ProteomicsVisualization/HEAD?urlpath=tree).
+To run Binder use the `launch binder` logo at the top of the README.md file or click [here](https://mybinder.org/v2/gh/MannLabs/ProteomicsVisualization/HEAD?urlpath=tree).
 
 **NOTE:** The first time you run Binder on your machine it often takes a while for the GitHub repository to be built on the Binder server. During all subsequent times of use, Binder simply runs an already created repository, so it should be much faster.
 
