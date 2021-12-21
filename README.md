@@ -38,7 +38,7 @@ This notebook incorporates functions for pre-processing and visualisation of raw
 - 2D MS1 map showing the intensity of the observed precursor masses across the whole retention time;
 - 2D MS1 ion mobility heatmap of precursor intensities demonstrating a correlation of m/z and ion mobility.
 
-Data: 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_chrom, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms1_part1, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms1_part2
+Data: 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_chrom, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms1_part1, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms1_part2, 20200428_Evosep_60SPD_SG06-16_MLHeLa_200ng_py8_S3-A6_1_2452_frame
 
 ##### 2) Figure 2 - visualizations at the fragment level.  
 
@@ -48,8 +48,7 @@ This notebook provides functions for pre-processing and visualisation of the raw
 - overlaid extracted ion chromatograms in the elution time window of precursor and fragments;
 - heatmaps of ion intensities in ion-mobility and retention time dimensions.
 
-Data: 20170123_Qep6_ChRo_SA_collab_SYN_CT_phospho_1_ms2_data, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms2_data, 
-20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_msms.txt, 20200428_Evosep_60SPD_SG06-16_MLHeLa_200ng_py8_S3-A6_1_2452_frame, 20200428_Evosep_60SPD_SG06-16_MLHeLa_200ng_py8_S3-A6_1_2452_ms2_data
+Data: 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_ms2_data, 20190124_QX3_JuSc_SA_JS7_1_wt_4h_1_msms.txt, myPrositLib.csv, prosit_prediction.csv, 20200428_Evosep_60SPD_SG06-16_MLHeLa_200ng_py8_S3-A6_1_2452.d
 
 ##### 3) Figure 3 - peptide visualization.
 
@@ -149,6 +148,7 @@ and run it in the notebook. This will install the libraries used in the current 
 - Schmidt, R. M., Schessner, J. P., Borner, G. H., & Schuck, S. (2019). The proteasome biogenesis regulator Rpn4 cooperates with the unfolded protein  response to promote ER stress resistance. ELife, 8.
 - Brüning, F., Noya, S. B., Bange, T., Koutsouli, S., Rudolph, J. D., Tyagarajan, S. K., Cox, J., Mann, M., Brown, S. A., & Robles, M. S. (2019). Sleep-wake cycles drive daily dynamics of synaptic phosphorylation. Science (New York, N.Y.), 366.
 - Davies, A. K., Itzhak, D. N., Edgar, J. R., Archuleta, T. L., Hirst, J., Jackson, L. P., Robinson, M. S., & Borner, G. H. H. (2018). AP-4 vesicles contribute to spatial control of autophagy via RUSC-dependent  peripheral delivery of ATG9A. Nature Communications, 9, 3958.
+- Meier, F., Brunner, A.-D., Frank, M., Ha, A., et al., diaPASEF: parallel accumulation-serial fragmentation combined with data-independent  acquisition. Nature methods 2020, 17, 1229–1236.
 
 ---
 ## How to contribute
