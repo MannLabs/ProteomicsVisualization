@@ -9,12 +9,10 @@ import plotly.graph_objects as go
 import ext.utils as utils
 import alphatims.bruker
 
-hv.extension('plotly')
-
 ##### preprocessing functions
 
 def sum_binned_data(rt_values, intensity_values, min_value, max_value, bins):
-    """ 
+    """
     Sum the intensities over retention time
     """
     bin_delta = (max_value - min_value) / bins
@@ -29,7 +27,7 @@ def sum_binned_data(rt_values, intensity_values, min_value, max_value, bins):
 
 ##### these plotting functions are taken from the AlphaViz package (https://github.com/MannLabs/alphaviz)
 def plot_xic(
-    df: pd.DataFrame, 
+    df: pd.DataFrame,
     xic_mz: float,
     mz_tol_value: int,
     rt_min: float,
@@ -66,15 +64,16 @@ def plot_xic(
     a Plotly line plot
         The line plot showing XIC for the selected m/z of the provided dataset.
     """
+    hv.extension('plotly')
     fig = go.Figure()
-    
+
     xic_mz_low_mz = xic_mz / (1 + mz_tol_value / 10**6)
     xic_mz_high_mz = xic_mz * (1 + mz_tol_value / 10**6)
 
     d = df[(df.mz >= xic_mz_low_mz) & (df.mz <= xic_mz_high_mz)]
 
     bin_centers, intensity_bins = sum_binned_data(d.RT, d.intensity, rt_min, rt_max, bins)
-    
+
     fig.add_trace(
         go.Scatter(
             x=bin_centers,
@@ -82,7 +81,7 @@ def plot_xic(
             hovertemplate='<b>RT:</b> %{x};<br><b>Intensity:</b> %{y}.',
         )
     )
-    
+
     fig.update_layout(
         title=dict(
             text=f'XIC for the m/z = {xic_mz}, m/z tolerance = {mz_tol_value} ppm.',
@@ -158,6 +157,7 @@ def plot_heatmap_ms1(
     a Plotly scatter plot
         The scatter plot showing all found features in the specified rt and m/z ranges of the provided dataset.
     """
+    hv.extension('bokeh')
     labels = {
         'm/z, Th': "mz",
         'RT, min': "RT",
@@ -204,8 +204,8 @@ def plot_heatmap_ms1(
     return fig
 
 def plot_tic(
-    df: pd.DataFrame, 
-    title: str, 
+    df: pd.DataFrame,
+    title: str,
     width: int = 900,
     height: int = 500
 ):
@@ -229,11 +229,12 @@ def plot_tic(
     a Plotly line plot
         The line plot containing TIC and BPI for MS1 data of the provided dataset.
     """
+    hv.extension('plotly')
     fig = go.Figure()
-    
+
     total_ion_col = ['RT', 'summed_intensity']
     base_peak_col = ['RT', 'max_intensity']
-    
+
     for chrom_type in ['TIC MS1', 'BPI MS1']:
         if chrom_type == 'TIC MS1':
             data = df[total_ion_col]
@@ -247,7 +248,7 @@ def plot_tic(
                 hovertemplate='<b>RT:</b> %{x};<br><b>Intensity:</b> %{y}.',
             )
         )
-    
+
     fig.update_layout(
         title=dict(
             text=title,
@@ -295,6 +296,7 @@ def plot_heatmap(
     background_color: str = "black",
     colormap: str = "fire",
 ):
+    hv.extension('bokeh')
     """Create a heatmap showing a correlation of m/z and ion mobility with color coding for signal intensity.
 
     Parameters
@@ -377,4 +379,3 @@ def plot_heatmap(
     ).opts(plot=opts_ms1)
 
     return fig
-    

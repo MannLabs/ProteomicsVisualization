@@ -12,23 +12,21 @@ from holoviews.operation.datashader import dynspread, rasterize, shade, datashad
 import ext.utils as utils
 import alphatims.bruker
 
-hv.extension('bokeh')
-
 ##### preprocessing functions
 
 def data_preprocessing(
     ms2_data: pd.DataFrame,
-    path_to_msms_file: str, 
+    path_to_msms_file: str,
     scan_number: int,
     exp_name: str,
     relative_intensity: bool = False,
     verbose: bool = True,
     mz_tol: float = 3.0, #ppm
 ):
-    """Merge information about identified fragment ions from the specified experiment in MaxQuant output "msms.txt" 
+    """Merge information about identified fragment ions from the specified experiment in MaxQuant output "msms.txt"
     file with the raw data corresponding to the special scan number and return the output dataframe with the columns:
-        - 'mz_values', 
-        - 'intensity_values', 
+        - 'mz_values',
+        - 'intensity_values',
         - 'ions'.
 
     Parameters
@@ -41,19 +39,19 @@ def data_preprocessing(
         The number of the scan to extract from the data.
     exp_name: str
         The name of the experiment to extract from the "msms.txt" file.
-    relative_intensity: bool 
+    relative_intensity: bool
         Whether to calculate the relative intensity. Default: False.
-    verbose: bool 
+    verbose: bool
         Whether to print the additional comments and output of the functions. Default: True.
-    mz_tol: float 
+    mz_tol: float
         The mz tolerance value. Default: 3.0 ppm.
 
     Returns
     -------
     a pandas Dataframe
         The the output dataframe containing the columns:
-        - 'mz_values', 
-        - 'intensity_values', 
+        - 'mz_values',
+        - 'intensity_values',
         - 'ions'.
     """
     # extract the necessary information from the msms.txt file.
@@ -69,7 +67,7 @@ def data_preprocessing(
     if verbose:
         print(f'The structure of the dataframe for the selected scan number {scan_number} and the experiment {exp_name} with the fragment type and fragment m/z columns.')
         print(exp_data.head())
-    
+
     # slice raw data for the specified scan_number
     data = pd.DataFrame(
         data={
@@ -78,17 +76,17 @@ def data_preprocessing(
         }
     )
     data['ions'] = ''
-        
+
     if relative_intensity:
         # To get the Relative abundance(%) of the ions instead of Absolute intensity weuse the MinMaxScaler from Sklearn.
         scaled_int = MinMaxScaler((0, 100)).fit_transform(data.intensity_values.values.reshape(-1, 1))
         data['intensity_values']= scaled_int.reshape(1, -1)[0]
-    
+
     if verbose:
         print('\n')
         print(f'The sliced ms2 raw data for the selected scan number {scan_number}.')
         print(data.head())
-        
+
     # match the raw data with the exp identified ion fragments
     for i, (frag, mz) in exp_data.iterrows():
         fr_mass_low, fr_mass_high = mz / (1 + mz_tol / 10**6), mz * (1 + mz_tol / 10**6)
@@ -97,22 +95,22 @@ def data_preprocessing(
         print('\n')
         print(f'The list of unique ions assigned to the raw data spectrum.')
         print(data.ions.unique().tolist())
-    
+
     return data
 
 def preprocess_prediction(
-    path: str, 
+    path: str,
     peptide_sequence: str,
     verbose: bool = True
 ):
     """Read and preprocess the output of the Prosit model to have the following columns in the dataframe:
-        - 'RelativeIntensity', 
-        - 'FragmentMz', 
-        - 'StrippedPeptide', 
+        - 'RelativeIntensity',
+        - 'FragmentMz',
+        - 'StrippedPeptide',
         - 'FragmentNumber',
-        - 'FragmentType', 
-        - 'FragmentCharge', 
-        - 'FragmentLossType', 
+        - 'FragmentType',
+        - 'FragmentCharge',
+        - 'FragmentLossType',
         - 'ions'.
 
     Parameters
@@ -121,24 +119,24 @@ def preprocess_prediction(
         The path to the Prosit output file.
     peptide_sequence: dict
         The peptide sequence.
-    verbose: bool 
+    verbose: bool
         Whether to print the additional comments and output of the functions. Default: True.
 
     Returns
     -------
     a pandas Dataframe
         The the output dataframe containing the columns:
-            - 'RelativeIntensity', 
-            - 'FragmentMz', 
-            - 'StrippedPeptide', 
+            - 'RelativeIntensity',
+            - 'FragmentMz',
+            - 'StrippedPeptide',
             - 'FragmentNumber',
-            - 'FragmentType', 
-            - 'FragmentCharge', 
-            - 'FragmentLossType', 
+            - 'FragmentType',
+            - 'FragmentCharge',
+            - 'FragmentLossType',
             - 'ions'.
     """
     predicted_df = pd.read_csv(
-        path, 
+        path,
         usecols=[
             'RelativeIntensity', 'FragmentMz', 'StrippedPeptide', 'FragmentNumber', 'FragmentType', 'FragmentCharge', 'FragmentLossType'
         ]
@@ -149,28 +147,28 @@ def preprocess_prediction(
     ]
     predicted_df.RelativeIntensity *= -100
     predicted_df['ions'] = predicted_df.apply(
-        lambda x: f"{x.FragmentType}{x.FragmentNumber} +{x.FragmentCharge}" if x.FragmentCharge != 1 else f"{x.FragmentType}{x.FragmentNumber}", 
+        lambda x: f"{x.FragmentType}{x.FragmentNumber} +{x.FragmentCharge}" if x.FragmentCharge != 1 else f"{x.FragmentType}{x.FragmentNumber}",
         axis=1
     )
     predicted_df['ions'] = predicted_df.apply(
-        lambda x: f"{x.ions}-{x.FragmentLossType}" if x.FragmentLossType != 'noloss' else x.ions, 
+        lambda x: f"{x.ions}-{x.FragmentLossType}" if x.FragmentLossType != 'noloss' else x.ions,
         axis=1
     )
     if verbose:
         print(f"The structure of the dataframe for the predicted peptide {peptide_sequence} using Prosit model.")
         print(predicted_df.head())
-    
+
     return predicted_df
 
 def convert_col_to_bool_list(
-    data: pd.DataFrame, 
-    col: str, 
-    sequence: str, 
+    data: pd.DataFrame,
+    col: str,
+    sequence: str,
     ion: str
 ):
-    """Convert the peptide sequence into the list of boolens for the b-ions whether the peptide is breaking 
+    """Convert the peptide sequence into the list of boolens for the b-ions whether the peptide is breaking
     after aligned amino acid or for the y-ion is breaking before aligned amino acid."""
-    
+
     ions=[False] * (len(sequence))
     for each in data[data[col].str.contains(ion)][col]:
         if ion == 'b':
@@ -212,6 +210,7 @@ def plot_line(
     a Plotly line plot
         The XIC line plot.
     """
+
     axis_dict = {
         "rt": "RT, min",
         "intensity": "Intensity",
@@ -224,7 +223,7 @@ def plot_line(
     x_dimension = labels[x_axis_label]
     intensities = timstof_data.bin_intensities(selected_indices, [x_dimension])
     x_ticks = timstof_data.rt_values / 60
-       
+
     non_zeros = np.flatnonzero(intensities)
     if len(non_zeros) == 0:
         x_ticks = np.empty(0, dtype=x_ticks.dtype)
@@ -270,11 +269,11 @@ def plot_elution_profile(
         Peptide information including sequence, fragments' patterns, rt, mz and im values.
     mass_dict : dict
         The basic mass dictionaty with the masses of all amino acids and modifications.
-    mz_tol: float 
+    mz_tol: float
         The mz tolerance value. Default: 50 ppm.
-    rt_tol: float 
+    rt_tol: float
         The rt tolerance value. Default: 30 ppm.
-    im_tol: float 
+    im_tol: float
         The im tolerance value. Default: 0.05 ppm.
     title : str
         The title of the plot.
@@ -288,23 +287,25 @@ def plot_elution_profile(
     a Plotly line plot
         The elution profile plot in retention time dimension for the specified peptide and all his fragments.
     """
+    hv.extension('plotly')
+
     x_axis_label = "rt"
     y_axis_label = "intensity"
-    
+
     # predict the theoretical fragments using the Alphapept get_fragmass() function.
     frag_masses, frag_type = utils.get_fragmass(
-        parsed_pep=list(peptide_info['sequence']), 
+        parsed_pep=list(peptide_info['sequence']),
         mass_dict=mass_dict
     )
     peptide_info['fragments'] = {
         (f"b{key}" if key>0 else f"y{-key}"):value for key,value in zip(frag_type, frag_masses)
     }
-    
+
     # slice the data using the rt_tol, im_tol and mz_tol values
     rt_slice = slice(peptide_info['rt'] - rt_tol, peptide_info['rt'] + rt_tol)
     im_slice = slice(peptide_info['im'] - im_tol, peptide_info['im'] + im_tol)
     prec_mz_slice = slice(peptide_info['mz'] / (1 + mz_tol / 10**6), peptide_info['mz'] * (1 + mz_tol / 10**6))
-    
+
     # create an elution profile for the precursor
     precursor_indices = timstof_data[
         rt_slice,
@@ -317,7 +318,7 @@ def plot_elution_profile(
     fig.add_trace(
         plot_line(timstof_data, precursor_indices, remove_zeros=True, label='precursor')
     )
-    
+
     # create elution profiles for all fragments
     for frag, frag_mz in peptide_info['fragments'].items():
         fragment_data_indices = timstof_data[
@@ -331,7 +332,7 @@ def plot_elution_profile(
             fig.add_trace(
                 plot_line(timstof_data, fragment_data_indices, remove_zeros=True, label=frag)
             )
-    
+
     fig.update_layout(
         title=dict(
             text=title,
@@ -358,7 +359,7 @@ def plot_elution_profile(
             xanchor="right",
             x=0.95
         ),
-        template = "plotly_white", 
+        template = "plotly_white",
         width=width,
         height=height,
         hovermode="x unified",
@@ -377,10 +378,10 @@ def plot_mass_spectra(
     neutral_losses_color: str = 'green',
     template: str = "plotly_white",
     spectrum_line_width: float = 2.0,
-    font_size_seq: int = 14, 
+    font_size_seq: int = 14,
     font_size_ion: int = 10,
     height: int = 520
-):    
+):
     """Plot the mass spectrum.
 
     Parameters
@@ -394,23 +395,23 @@ def plot_mass_spectra(
     predicted : tuple
         The tuple containing values of the predicted FragmentMz, RelativeIntensity and ions in the form of:
         (predicted_df.FragmentMz, predicted_df.RelativeIntensity, predicted_df.ions). Default: empty tuple.
-    spectrum_color : str 
+    spectrum_color : str
         The color of the mass spectrum. Default: 'grey'.
-    b_ion_color : str 
+    b_ion_color : str
         The color of the b-ions. Default: 'red'.
-    y_ion_color : str 
+    y_ion_color : str
         The color of the y-ions. Default: 'blue'.
-    neutral_losses_color : str 
+    neutral_losses_color : str
         The color of the neutral losses. Default: 'green'.
-    template: str 
+    template: str
         The template for the plot. Default: "plotly_white".
-    spectrum_line_width: float 
+    spectrum_line_width: float
         The width of the spectrum peaks. Default: 2.0.
-    font_size_seq: int 
-        The font size of the peptide sequence letters. Default: 14. 
-    font_size_ion: int 
+    font_size_seq: int
+        The font size of the peptide sequence letters. Default: 14.
+    font_size_ion: int
         The font size of the ion letters. Default: 10.
-    height: int 
+    height: int
         The height of the plot. Default: 520.
 
     Returns
@@ -418,9 +419,10 @@ def plot_mass_spectra(
     a Plotly spectrum plot
         The ms2 spectum plot.
     """
+    hv.extension('plotly')
     data.sort_values('ions', inplace=True)
     fig = go.Figure()
-    
+
     fig.add_trace(
         go.Scatter(
             x=data[data.ions == ''].mz_values,
@@ -473,7 +475,7 @@ def plot_mass_spectra(
             showlegend=False
         )
     )
-   
+
     if predicted:
         fig.add_trace(
             go.Scatter(
@@ -488,7 +490,7 @@ def plot_mass_spectra(
                 showlegend=False
             )
         )
-    
+
     fig.update_layout(
         template=template,
         xaxis=dict(
@@ -517,12 +519,12 @@ def plot_mass_spectra(
             yanchor='top'
         )
     )
-    
+
     # Use the 'shapes' attribute from the layout to draw the vertical lines
     if predicted:
         combined_mz = list(data.mz_values.values) + list(predicted[0])
         combined_int = list(data.intensity_values.values) + list(predicted[1])
-        combined_ions = list(data.ions.values) + list(predicted[2])      
+        combined_ions = list(data.ions.values) + list(predicted[2])
         fig.update_layout(
             shapes=[
                 dict(
@@ -568,19 +570,19 @@ def plot_mass_spectra(
                 ) for i in data.index
             ],
         )
-        
+
     fig_common = plotly.subplots.make_subplots(
-        rows=4, cols=1, 
+        rows=4, cols=1,
         figure=fig,
         specs=[
-          [{"rowspan": 3}],  
-          [{}], 
+          [{"rowspan": 3}],
+          [{}],
           [{}],
           [{}]
         ],
         vertical_spacing=0.15,
     )
-    
+
     bions = convert_col_to_bool_list(data, 'ions', sequence, 'b')
     yions = convert_col_to_bool_list(data, 'ions', sequence, 'y')
 
@@ -589,11 +591,11 @@ def plot_mass_spectra(
     for i,aa in enumerate(sequence):
         fig.add_annotation(
             dict(
-                text=aa, 
-                x=i*value, 
-                y=0, 
-                showarrow=False, 
-                font_size=font_size_seq, 
+                text=aa,
+                x=i*value,
+                y=0,
+                showarrow=False,
+                font_size=font_size_seq,
                 yshift=1, align='center'
             ),
             row=4,
@@ -603,37 +605,37 @@ def plot_mass_spectra(
         if b:
             fig.add_trace(
                 go.Scatter(
-                    x=[i*value,i*value+0.35,i*value+0.35], 
-                    y=[0.8,0.8,0], 
-                    mode="lines",        
-                    showlegend=False, 
-                    marker_color=b_ion_color, 
+                    x=[i*value,i*value+0.35,i*value+0.35],
+                    y=[0.8,0.8,0],
+                    mode="lines",
+                    showlegend=False,
+                    marker_color=b_ion_color,
                     line_width=spectrum_line_width,
                     hoverinfo='skip'
                 ),
-                row=4, 
+                row=4,
                 col=1
             )
             fig.add_annotation(
                 dict(
-                    text="b{}".format(str(i+1)), 
-                    x=i*value+0.2, 
+                    text="b{}".format(str(i+1)),
+                    x=i*value+0.2,
                     y=1.4,
-                    showarrow=False, 
+                    showarrow=False,
                     font_size=font_size_ion
-                ), 
-                row=4, 
+                ),
+                row=4,
                 col=1
             )
     for i,y in enumerate(yions):
         if y:
             fig.add_trace(
                 go.Scatter(
-                    x=[i*value,i*value-0.35,i*value-0.35], 
-                    y=[-0.8,-0.8,0], 
+                    x=[i*value,i*value-0.35,i*value-0.35],
+                    y=[-0.8,-0.8,0],
                     mode="lines",
-                    showlegend=False, 
-                    marker_color=y_ion_color, 
+                    showlegend=False,
+                    marker_color=y_ion_color,
                     line_width=spectrum_line_width,
                     hoverinfo='skip'
                 ),
@@ -641,28 +643,28 @@ def plot_mass_spectra(
             )
             fig.add_annotation(
                 dict(
-                    text="y{}".format(str(sl-i)), 
-                    x=i*value-0.2, 
-                    y=-1.4, 
+                    text="y{}".format(str(sl-i)),
+                    x=i*value-0.2,
+                    y=-1.4,
                     showarrow=False,
                     font_size=font_size_ion
-                ), 
-                row=4, 
+                ),
+                row=4,
                 col=1
             )
     fig_common.update_yaxes(
-        visible=False, 
+        visible=False,
         range=(-1.5,1.5),
-        row=4, 
+        row=4,
         col=1
     )
     fig_common.update_xaxes(
-        visible=False, 
+        visible=False,
         range=(-1, sl),
-        row=4, 
+        row=4,
         col=1
     )
-    
+
     return fig_common
 
 def plot_heatmap(
@@ -689,7 +691,7 @@ def plot_heatmap(
         The background color of the plot. Default: "black".
     colormap : str
         The name of the colormap in Plotly. Default: "fire".
-        
+
     Returns
     -------
     a Plotly scatter plot
@@ -703,7 +705,7 @@ def plot_heatmap(
     x_axis_label = "RT, min"
     y_axis_label = "Inversed IM, V·s·cm\u207B\u00B2"
     z_axis_label = "Intensity"
-    
+
     x_dimension = labels[x_axis_label]
     y_dimension = labels[y_axis_label]
     z_dimension = labels[z_axis_label]
@@ -752,7 +754,7 @@ def plot_elution_profile_heatmap(
     width: int = 180,
     height: int = 180,
 ):
-    """Plot an elution profile for the specified precursor and all his identified fragments as heatmaps in the 
+    """Plot an elution profile for the specified precursor and all his identified fragments as heatmaps in the
     retention time/ion mobility dimensions.
 
     Parameters
@@ -763,11 +765,11 @@ def plot_elution_profile_heatmap(
         Peptide information including sequence, fragments' patterns, rt, mz and im values.
     mass_dict : dict
         The basic mass dictionaty with the masses of all amino acids and modifications.
-    mz_tol: float 
+    mz_tol: float
         The mz tolerance value. Default: 50 ppm.
-    rt_tol: float 
+    rt_tol: float
         The rt tolerance value. Default: 30 ppm.
-    im_tol: float 
+    im_tol: float
         The im tolerance value. Default: 0.05 ppm.
     title : str
         The title of the plot. Default: "".
@@ -781,23 +783,24 @@ def plot_elution_profile_heatmap(
     Returns
     -------
     a Bokeh heatmap plots
-        The elution profile heatmap plots in retention time and ion mobility dimensions 
+        The elution profile heatmap plots in retention time and ion mobility dimensions
         for the specified peptide and all his fragments.
     """
+    hv.extension('bokeh')
     # predict the theoretical fragments using the Alphapept get_fragmass() function.
     frag_masses, frag_type = utils.get_fragmass(
-        parsed_pep=list(peptide_info['sequence']), 
+        parsed_pep=list(peptide_info['sequence']),
         mass_dict=mass_dict
     )
     peptide_info['fragments'] = {
         (f"b{key}" if key>0 else f"y{-key}"):value for key,value in zip(frag_type, frag_masses)
     }
-    
+
     # slice the data using the rt_tol, im_tol and mz_tol values
     rt_slice = slice(peptide_info['rt'] - rt_tol, peptide_info['rt'] + rt_tol)
     im_slice = slice(peptide_info['im'] - im_tol, peptide_info['im'] + im_tol)
     prec_mz_slice = slice(peptide_info['mz'] / (1 + mz_tol / 10**6), peptide_info['mz'] * (1 + mz_tol / 10**6))
-    
+
     # create an elution profile for the precursor
     precursor_indices = timstof_data[
         rt_slice,
@@ -806,11 +809,11 @@ def plot_elution_profile_heatmap(
         prec_mz_slice,
         'raw'
     ]
-    
+
     common_plot = plot_heatmap(
         timstof_data.as_dataframe(precursor_indices), title='precursor', width=width, height=height
     )
-    
+
     # create elution profiles for all fragments
     for frag, frag_mz in peptide_info['fragments'].items():
         fragment_data_indices = timstof_data[
@@ -824,5 +827,5 @@ def plot_elution_profile_heatmap(
             common_plot += plot_heatmap(
                 timstof_data.as_dataframe(fragment_data_indices), title=frag, width=width, height=height
             )
-    
+
     return common_plot.cols(n_cols)
